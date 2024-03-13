@@ -24,7 +24,14 @@ const Login = () => {
 
     if(response && response.data && +response.data.EC === 0){
           toast.success(response.data.EM)
+          let data = {
+            isAuthencated:true,
+            token:'Fake token'
+          }
+
+          sessionStorage.setItem('account',JSON.stringify(data))
           navigate('/user')
+          window.location.reload()
     }
 
     if(response && response.data && +response.data.EC !==0){
@@ -32,6 +39,12 @@ const Login = () => {
     }
 
     //console.log(">>check response",response.data)
+  }
+  const  handlePressEnter = (event) =>{
+    //console.log(">>",event.charCode,event.code);
+    if(event.charCode === 0 && event.code === "Enter" ){
+      handleLogin()
+    }
   }
 
   return (
@@ -78,6 +91,7 @@ const Login = () => {
                 <input
                   value={password}
                   onChange={(event)=>{setPassword(event.target.value)}}
+                  onKeyDown={(event)=>handlePressEnter(event)}
                   type="password"
                   autocomplete="password"
                   required

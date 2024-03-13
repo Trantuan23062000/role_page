@@ -1,19 +1,29 @@
-import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import NavBar from "./components/NavBar";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import ListUser from "./components/listUser";
-import { Fragment } from 'react';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
+import NavBar from "./components/NavBar"
+import Login from "./components/Login"
+import Register from "./components/Register"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import ListUser from "./components/listUser"
+import { Fragment, useEffect, useState } from 'react'
+import _ from "lodash"
 
 
 const App = () => {
+  const [account,setAccount] = useState({})
+  useEffect(()=>{
+    let session = sessionStorage.getItem('account')
+    if(session){
+      setAccount(JSON.parse(session))
+    }
+
+  },[])
   return (
    
     <div className="App">
       <div className="app-container">
-        <Router>
+        {account && !_.isEmpty(account) && account.isAuthencated &&  <NavBar/>  }
+        <Router>  
           <Fragment>
           <NavBar/> 
           <Routes>
