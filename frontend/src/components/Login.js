@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {toast} from "react-toastify"
 import LoginUser from "../services/login"
@@ -21,9 +21,9 @@ const Login = () => {
     await LoginUser(valueLogin,password)
 
     const response = await LoginUser(valueLogin,password)
+    //toast.success(response.data.EM)
 
     if(response && response.data && +response.data.EC === 0){
-          toast.success(response.data.EM)
           let data = {
             isAuthencated:true,
             token:'Fake token'
@@ -31,8 +31,11 @@ const Login = () => {
 
           sessionStorage.setItem('account',JSON.stringify(data))
           navigate('/user')
-          window.location.reload()
+          
+          
+         
     }
+    window.location.reload()
 
     if(response && response.data && +response.data.EC !==0){
       toast.error(response.data.EM)
@@ -46,6 +49,16 @@ const Login = () => {
       handleLogin()
     }
   }
+
+  useEffect(()=>{
+    let session = sessionStorage.getItem('account')
+    if(session){
+      navigate("/user")
+      window.location.reload()
+    }
+  },[])
+
+
 
   return (
     <div className="bg-transparent flex h-screen items-center justify-center px-4 sm:px-6 lg:px-8">
