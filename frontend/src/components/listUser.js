@@ -5,6 +5,7 @@ import ReactPaginate from "react-paginate";
 import DeleteUerAPI from "../services/deleteUser";
 import { toast } from "react-toastify";
 import ModalDelete from "./modalDelete";
+import ModalUser from "./modalUser";
 
 const ListUser = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -13,8 +14,8 @@ const ListUser = () => {
   const [ListUser, setListUser] = useState([]);
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const [dataModal,setDataModal] = useState({})
- 
+  const [showModalUser, setShowModalUser] = useState(false);
+  const [dataModal, setDataModal] = useState({});
 
   useEffect(() => {
     let session = sessionStorage.getItem("account");
@@ -39,21 +40,29 @@ const ListUser = () => {
   };
 
   const handleDeleteUser = async (user) => {
-    setDataModal(user)
+    setDataModal(user);
     setShowModal(true);
   };
 
+  const handleModalUser = () => {
+    setShowModalUser(true);
+  };
+
+  const handleShowModalUser = () => {
+    setShowModalUser(false);
+  };
+
   const handleClose = () => {
-    setDataModal({})
+    setDataModal({});
     setShowModal(false);
   };
 
   const comfirmUser = async () => {
-    let response = await DeleteUerAPI(dataModal)
+    let response = await DeleteUerAPI(dataModal);
     //console.log(response)
     if (response && response.data.EC === 0) {
       toast.success(response.data.EM);
-      setShowModal(false)
+      setShowModal(false);
       await fetchData();
     } else {
       toast.error(response.data.EM);
@@ -62,11 +71,21 @@ const ListUser = () => {
 
   return (
     <div>
-      {showModal ? <ModalDelete handleClose={handleClose} comfirmUser = {comfirmUser} dataModal={dataModal} /> : null}
+      {showModal ? (
+        <ModalDelete
+          handleClose={handleClose}
+          comfirmUser={comfirmUser}
+          dataModal={dataModal}
+        />
+      ) : null}
+      {showModalUser ? (
+        <ModalUser handleShowModalUser={handleShowModalUser} />
+      ) : null}
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg flex-auto m-60 ">
         <div className="m-5 flex">
           <button
             type="button"
+            onClick={() => handleModalUser()}
             className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
           >
             Create User

@@ -1,6 +1,7 @@
 import express from "express";
 import apiController from "../controller/apicontroller"
 import userController from "../controller/usercontroller"
+import groupController from "../controller/groupcontroller"
 
 /**
  *
@@ -17,6 +18,8 @@ const apiRoutes = (app) => {
   router.post("user/create",userController.createFunc)
   router.put("/user/upadate",userController.updateFunc)
   router.delete("/user/delete",userController.deleteFunc)
+
+  router.get("/group/read",groupController.ReadFunc)
 
 
   return app.use("/api/v1", router);

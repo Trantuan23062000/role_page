@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
   Group.init(
     {
       name: DataTypes.STRING,
-      desription: DataTypes.STRING,
+      description: DataTypes.STRING,
     },
     {
       sequelize,
