@@ -17,15 +17,21 @@ const ListUser = () => {
   const [showModalUser, setShowModalUser] = useState(false);
   const [dataModal, setDataModal] = useState({});
 
+  //edit
+  const [dataModalUser, setDataModalUser] = useState({});
+
+  const [actionUserModal, setAction] = useState("CREATE");
+
   useEffect(() => {
     let session = sessionStorage.getItem("account");
     if (!session) {
       navigate("/login");
     }
-  });
+  }, []);
   useEffect(() => {
     fetchData();
   }, [currentPage]);
+
   const fetchData = async (page) => {
     let response = await fetchListUser(currentPage, currentLimit);
     if (response && response.data && response.data.EC === 0) {
@@ -34,25 +40,21 @@ const ListUser = () => {
       setTotalPages(response.data.DT.totalPages);
       setListUser(response.data.DT.users);
     }
-  };
-  const handlePageChange = async (event) => {
-    setCurrentPage(+event.selected + 1);
+    //console.log(response.data);
   };
 
   const handleDeleteUser = async (user) => {
     setDataModal(user);
+    //console.log(setDataModal(user));
     setShowModal(true);
-  };
-
-  const handleModalUser = () => {
-    setShowModalUser(true);
+    fetchData()
   };
 
   const handleShowModalUser = () => {
     setShowModalUser(false);
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
     setDataModal({});
     setShowModal(false);
   };
@@ -63,9 +65,34 @@ const ListUser = () => {
     if (response && response.data.EC === 0) {
       toast.success(response.data.EM);
       setShowModal(false);
-      await fetchData();
+      fetchData()
     } else {
       toast.error(response.data.EM);
+    }
+  };
+
+  const handleEditUser = async (user) => {
+    //console.log(user);
+    setDataModalUser(user);
+    setShowModalUser(true);
+    setAction("UPDATE");
+
+    //console.log(setDataModalUser(user));
+  };
+
+  const handleChangPage = (pagenumber) => {
+    setCurrentPage(pagenumber);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  }
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
     }
   };
 
@@ -79,13 +106,20 @@ const ListUser = () => {
         />
       ) : null}
       {showModalUser ? (
-        <ModalUser handleShowModalUser={handleShowModalUser} />
+        <ModalUser
+          handleShowModalUser={handleShowModalUser}
+          action={actionUserModal}
+          dataModalUser={dataModalUser}
+        />
       ) : null}
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg flex-auto m-60 ">
         <div className="m-5 flex">
           <button
             type="button"
-            onClick={() => handleModalUser()}
+            onClick={() => {
+              setShowModalUser(true);
+              setAction("CREATE");
+            }}
             className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
           >
             Create User
@@ -112,9 +146,9 @@ const ListUser = () => {
                 >
                   <path
                     stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
                   />
                 </svg>
@@ -140,9 +174,9 @@ const ListUser = () => {
               >
                 <path
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                 />
               </svg>
@@ -185,7 +219,7 @@ const ListUser = () => {
                         scope="row"
                         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                       >
-                        {index + 1}
+                        {(currentPage - 1) * currentLimit + index + 1}
                       </th>
                       <td className="px-6 py-4">{item.id}</td>
                       <td className="px-6 py-4">{item.username}</td>
@@ -198,6 +232,7 @@ const ListUser = () => {
                           <button
                             type="button"
                             className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
+                            onClick={() => handleEditUser(item)}
                           >
                             Edit
                           </button>
@@ -229,27 +264,38 @@ const ListUser = () => {
           </tbody>
         </table>
         {totalPages > 0 && (
-          <div className="m-5 pl-8 flex">
-            <ReactPaginate
-              breakLabel="..."
-              nextLabel="next >"
-              onPageChange={handlePageChange}
-              pageRangeDisplayed={5}
-              pageCount={totalPages}
-              previousLabel="< previous"
-              renderOnZeroPageCount={null}
-              marginPagesDisplayed={2}
-              containerClassName="pagination justify-content-center"
-              pageClassName="page-item"
-              pageLinkClassName="page-link"
-              previousClassName="page-item"
-              previousLinkClassName="page-link"
-              nextClassName="page-item"
-              nextLinkClassName="page-link"
-              activeClassName="active"
-              forcePage={currentPage}
-            />
-          </div>
+         <div class="flex items-center gap-4 p-5">
+         <button onClick={() =>handlePreviousPage()}
+           class="flex items-center gap-2 px-6 py-3 font-sans text-xs font-bold text-center text-gray-900 uppercase align-middle transition-all rounded-lg select-none hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+           type="button">
+           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+             aria-hidden="true" class="w-4 h-4">
+             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path>
+           </svg>
+           Previous
+         </button>
+         <div class="flex items-center gap-2">
+          {Array.from({length:totalPages},(_,i)=>(
+              <button key={i} onClick={() => handleChangPage(i + 1)} disabled={currentPage === i + 1}
+              class="relative h-10 max-h-[40px] w-10 max-w-[40px] select-none rounded-lg bg-gray-900 text-center align-middle font-sans text-xs font-medium uppercase text-white shadow-md shadow-gray-900/10 transition-all hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+              type="button">
+              <span class="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
+                {i+1}
+              </span>
+            </button>
+          ))}
+          
+         </div>
+         <button onClick={()=>handleNextPage()}
+           class="flex items-center gap-2 px-6 py-3 font-sans text-xs font-bold text-center text-gray-900 uppercase align-middle transition-all rounded-lg select-none hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+           type="button">
+           Next
+           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+             aria-hidden="true" class="w-4 h-4">
+             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+           </svg>
+         </button>
+       </div> 
         )}
       </div>
     </div>

@@ -21,25 +21,26 @@ const Login = () => {
     await LoginUser(valueLogin,password)
 
     const response = await LoginUser(valueLogin,password)
-    //toast.success(response.data.EM)
+    toast.success(response.data.EM)
+    
 
     if(response && response.data && +response.data.EC === 0){
           let data = {
             isAuthencated:true,
             token:'Fake token'
           }
-
           sessionStorage.setItem('account',JSON.stringify(data))
-          navigate('/user')
+          navigate('/user')  
           
-          
-         
+          window.location.reload()
     }
-    window.location.reload()
+    //console.log(response)
+    
 
     if(response && response.data && +response.data.EC !==0){
       toast.error(response.data.EM)
     }
+    
 
     //console.log(">>check response",response.data)
   }

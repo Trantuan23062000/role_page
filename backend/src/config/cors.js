@@ -8,5 +8,4 @@ const cofigCors = (app) =>{
       });
       
 }
-
 export default cofigCors
